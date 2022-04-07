@@ -1,0 +1,7 @@
+parameters:
+    excludePaths:
+        - .git/
+        - node_modules/
+        - report/
+        - vendor/
+        - tests/*

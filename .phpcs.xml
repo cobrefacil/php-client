@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="FEBA">
+    <description>FEBA Coding Standard</description>
+
+    <config name="testVersion" value="7.4-"/>
+    <config name="installed_paths" value="vendor/phpcompatibility/php-compatibility" />
+
+    <rule ref="PHPCompatibility" />
+
+    <rule ref="PSR2">
+        <exclude name="PSR2.Classes.PropertyDeclaration.Underscore"/>
+        <exclude name="PEAR.Functions.FunctionCallSignature"/>
+        <exclude name="Generic.Files.LineLength"/>
+        <exclude name="PSR2.ControlStructures.SwitchDeclaration"/>
+    </rule>
+
+    <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
+
+    <rule ref="Squiz.Strings.DoubleQuoteUsage.NotRequired"/>
+
+    <rule ref="Squiz.Strings.ConcatenationSpacing">
+        <properties>
+            <property name="spacing" value="1" />
+            <property name="ignoreNewlines" value="true" />
+        </properties>
+    </rule>
+
+    <rule ref="Squiz.ControlStructures.ControlSignature">
+        <properties>
+            <property name="requiredSpacesBeforeColon" value="0" />
+        </properties>
+    </rule>
+
+    <rule ref="PSR1.Classes.ClassDeclaration.MissingNamespace">
+        <exclude-pattern>m\d{6}_\d{6}_.+\.php$</exclude-pattern>
+    </rule>
+
+    <rule ref="Squiz.Classes.ValidClassName.NotCamelCaps">
+        <exclude-pattern>m\d{6}_\d{6}_.+\.php$</exclude-pattern>
+    </rule>
+
+    <exclude-pattern>.git/*</exclude-pattern>
+    <exclude-pattern>node_modules/*</exclude-pattern>
+    <exclude-pattern>report/*</exclude-pattern>
+    <exclude-pattern>vendor/*</exclude-pattern>
+    <exclude-pattern>tests/*</exclude-pattern>
+
+</ruleset>

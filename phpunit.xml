@@ -1,0 +1,13 @@
+<phpunit colors="true" bootstrap="./vendor/autoload.php">
+    <logging>
+        <log type="coverage-html"
+             target="./report"
+             lowUpperBound="50"
+             highLowerBound="80"/>
+    </logging>
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory>./src</directory>
+        </whitelist>
+    </filter>
+</phpunit>

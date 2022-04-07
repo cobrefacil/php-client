@@ -1,0 +1,54 @@
+{
+  "name": "cobrefacil/sdk-php",
+  "description": "Cobre Fácil SDK",
+  "homepage": "https://cobrefacil.com.br",
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "CobreFacil\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "CobreFacil\\": "tests/"
+    }
+  },
+  "require": {
+    "ext-curl": "*",
+    "ext-json": "*",
+    "ext-mbstring": "*",
+    "guzzlehttp/guzzle": "^6.5",
+    "php": ">=7.1"
+  },
+  "require-dev": {
+    "fzaninotto/faker": "^1.9",
+    "phpcompatibility/php-compatibility": "^9.3",
+    "phpstan/phpstan": "^1.4",
+    "phpunit/phpunit": "^7.5",
+    "squizlabs/php_codesniffer": "^3.6",
+    "vlucas/phpdotenv": "^5.4"
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "preferred-install": "dist",
+    "sort-packages": true
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "scripts": {
+    "check": [
+      "composer phpcs",
+      "composer phpstan"
+    ],
+    "phpcs": [
+      "./vendor/bin/phpcs --encoding=UTF-8 --error-severity=1 --warning-severity=8 --report=full --report-width=75 --tab-width=4 -p --report=json ./"
+    ],
+    "phpcbf": [
+      "./vendor/bin/phpcbf ./"
+    ],
+    "phpstan": [
+      "./vendor/bin/phpstan analyze ./ -c ./phpstan.neon --level=1 --memory-limit=-1 --no-progress -vvv"
+    ]
+  }
+}

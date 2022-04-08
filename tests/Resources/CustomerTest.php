@@ -76,18 +76,18 @@ class CustomerTest extends BaseTest
         }
     }
 
-    public function testList()
+    public function testSearch()
     {
-        $response = $this->cobreFacil->customer()->list();
+        $response = $this->cobreFacil->customer()->search();
         $this->assertTrue(isset($response[0]['id']));
     }
 
-    public function testListWithFilter()
+    public function testSearchWithFilter()
     {
         $filter = [
             'email' => $this->getLastCustomer()['email'],
         ];
-        $response = $this->cobreFacil->customer()->list($filter);
+        $response = $this->cobreFacil->customer()->search($filter);
         $this->assertEquals($response[0]['email'], $filter['email']);
     }
 
@@ -132,18 +132,18 @@ class CustomerTest extends BaseTest
         }
     }
 
-    public function testDelete()
+    public function testRemove()
     {
-        $response = $this->cobreFacil->customer()->delete($this->getLastCustomerId());
-        $this->assertNotNull($response['deleted_at']);
+        $response = $this->cobreFacil->customer()->remove($this->getLastCustomerId());
+        $this->assertNotNull($response['removed_at']);
     }
 
-    public function testErrorOnDelete()
+    public function testErrorOnRemove()
     {
         $id = 'invalid';
         $customer = $this->cobreFacil->customer();
         try {
-            $customer->delete($id);
+            $customer->remove($id);
         } catch (Exception $e) {
             $this->assertEquals("v1/customers/$id", $customer->getUri());
             $this->assertResourceNotFoundException($e);

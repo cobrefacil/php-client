@@ -2,19 +2,18 @@
 
 namespace CobreFacil\Resources;
 
-use CobreFacil\Exceptions\InvalidCredentialsException;
+use CobreFacil\Exceptions\ResourceException;
 
 class Authentication extends ApiResource
 {
-    /** @var string */
     protected $endpoint = 'authenticate';
 
     /**
-     * @throws InvalidCredentialsException
+     * @throws ResourceException
      */
     public function authenticate(string $appId, string $secret): array
     {
-        return $this->postRequest([
+        return $this->post([
             'app_id' => $appId,
             'secret' => $secret,
         ]);

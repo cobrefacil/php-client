@@ -100,18 +100,18 @@ class InvoiceTest extends BaseTest
         }
     }
 
-    public function testList()
+    public function testSearch()
     {
-        $response = $this->cobreFacil->invoice()->list();
+        $response = $this->cobreFacil->invoice()->search();
         $this->assertTrue(isset($response[0]['id']));
     }
 
-    public function testListWithFilter()
+    public function testSearchWithFilter()
     {
         $filter = [
             'email' => $this->getLastInvoice()['customer']['email'],
         ];
-        $response = $this->cobreFacil->invoice()->list($filter);
+        $response = $this->cobreFacil->invoice()->search($filter);
         $this->assertGreaterThanOrEqual(1, count($response));
         foreach ($response as $invoice) {
             $this->assertEquals($filter['email'], $invoice['customer']['email']);
@@ -139,7 +139,7 @@ class InvoiceTest extends BaseTest
 
     public function testCancelBankSlip()
     {
-        $response = $this->cobreFacil->invoice()->delete($this->getLastInvoiceId(['status' => Invoice::STATUS_PENDING]));
+        $response = $this->cobreFacil->invoice()->remove($this->getLastInvoiceId(['status' => Invoice::STATUS_PENDING]));
         $this->assertEquals(Invoice::STATUS_CANCELED, $response['status']);
     }
 
@@ -148,7 +148,7 @@ class InvoiceTest extends BaseTest
         $id = 'invalid';
         $invoice = $this->cobreFacil->invoice();
         try {
-            $invoice->delete('invalid');
+            $invoice->remove('invalid');
         } catch (ResourceNotFoundException $e) {
             $this->assertEquals("v1/invoices/$id", $invoice->getUri());
             $this->assertEquals('Cobrança não encontrada.', $e->getMessage());
@@ -158,7 +158,7 @@ class InvoiceTest extends BaseTest
     public function testErrorOnCancelBankSlipAlreadyCanceled()
     {
         try {
-            $this->cobreFacil->invoice()->delete($this->getLastInvoiceId(['status' => Invoice::STATUS_CANCELED]));
+            $this->cobreFacil->invoice()->remove($this->getLastInvoiceId(['status' => Invoice::STATUS_CANCELED]));
         } catch (InvalidParamsException $e) {
             $this->assertEquals('Somente faturas pendentes podem ser canceladas.', $e->getMessage());
         }
@@ -171,6 +171,6 @@ class InvoiceTest extends BaseTest
 
     protected function getLastInvoice(array $filter = null): array
     {
-        return $this->cobreFacil->invoice()->list($filter)[0];
+        return $this->cobreFacil->invoice()->search($filter)[0];
     }
 }

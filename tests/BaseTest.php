@@ -49,7 +49,7 @@ abstract class BaseTest extends TestCase
 
     protected function getLastCustomer(): array
     {
-        return $this->cobreFacil->customer()->list()[0];
+        return $this->cobreFacil->customer()->search()[0];
     }
 
     protected function assertInvalidParamsException(array $expectedErrors, InvalidParamsException $exception)

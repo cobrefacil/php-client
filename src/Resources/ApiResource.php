@@ -75,7 +75,7 @@ abstract class ApiResource
     /**
      * @throws ResourceException
      */
-    protected function getRequest(?array $queryParams = null): array
+    protected function get(?array $queryParams = null): array
     {
         try {
             $response = $this->client->get($this->getUri(), [
@@ -91,7 +91,7 @@ abstract class ApiResource
     /**
      * @throws ResourceException
      */
-    protected function postRequest(array $params): array
+    protected function post(array $params): array
     {
         try {
             $response = $this->client->post($this->getUri(), [
@@ -107,7 +107,7 @@ abstract class ApiResource
     /**
      * @throws ResourceException
      */
-    protected function putRequest(array $params): array
+    protected function put(array $params): array
     {
         try {
             $response = $this->client->put($this->getUri(), [
@@ -123,7 +123,7 @@ abstract class ApiResource
     /**
      * @throws ResourceException
      */
-    protected function deleteRequest(): array
+    protected function delete(): array
     {
         try {
             $response = $this->client->delete($this->getUri(), [

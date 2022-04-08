@@ -7,9 +7,13 @@ class InvalidParamsException extends ResourceException
     /** @var array */
     private $errors;
 
-    public static function createByBody(array $body): InvalidParamsException
+    public static function createByBody(array $body, int $code): InvalidParamsException
     {
-        return (new InvalidParamsException($body['message']))->setErrors($body['errors']);
+        $exception = new InvalidParamsException($body['message'], $code);
+        if (!empty($body['errors'])) {
+            $exception->setErrors($body['errors']);
+        }
+        return $exception;
     }
 
     public function getErrors(): array

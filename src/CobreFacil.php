@@ -4,6 +4,7 @@ namespace CobreFacil;
 
 use CobreFacil\Resources\Authentication;
 use CobreFacil\Resources\Customer;
+use CobreFacil\Resources\Invoice;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 
@@ -62,5 +63,10 @@ class CobreFacil
     public function customer(): Customer
     {
         return new Customer($this->client, $this->token);
+    }
+
+    public function invoice(): Invoice
+    {
+        return new Invoice($this->client, $this->token);
     }
 }

@@ -143,7 +143,7 @@ abstract class ApiResource
         $code = $e->getCode();
         $body = json_decode($e->getResponse()->getBody(), true);
         if (400 === $code) {
-            return InvalidParamsException::createByBody($body);
+            return InvalidParamsException::createByBody($body, $code);
         }
         if (401 === $code) {
             return new InvalidCredentialsException();

@@ -68,13 +68,11 @@ class CustomerTest extends BaseTest
                 'email' => $faker->email,
                 'email_cc' => $faker->email,
             ]);
-        } catch (Exception $e) {
-            $this->assertInstanceOf(InvalidParamsException::class, $e);
-            $errors = $e->getErrors();
+        } catch (InvalidParamsException $e) {
             $expectedErrors = [
                 'O campo address é obrigatório.',
             ];
-            $this->assertEquals($expectedErrors, $errors);
+            $this->assertInvalidParamsException($expectedErrors, $e);
         }
     }
 
@@ -87,7 +85,7 @@ class CustomerTest extends BaseTest
     public function testListWithFilter()
     {
         $filter = [
-            'email' => $this->getFirstCustomer()['email'],
+            'email' => $this->getLastCustomer()['email'],
         ];
         $response = $this->cobreFacil->customer()->list($filter);
         $this->assertEquals($response[0]['email'], $filter['email']);
@@ -95,7 +93,7 @@ class CustomerTest extends BaseTest
 
     public function testGetById()
     {
-        $response = $this->cobreFacil->customer()->getById($this->getValidId());
+        $response = $this->cobreFacil->customer()->getById($this->getLastCustomerId());
         $this->assertIsString($response['id']);
     }
 
@@ -114,7 +112,7 @@ class CustomerTest extends BaseTest
     public function testUpdate()
     {
         $faker = Factory::create();
-        $customerToUpdate = $this->getFirstCustomer();
+        $customerToUpdate = $this->getLastCustomer();
         $params = $customerToUpdate;
         $params['personal_name'] = $faker->name;
         $response = $this->cobreFacil->customer()->update($customerToUpdate['id'], $params);
@@ -124,7 +122,7 @@ class CustomerTest extends BaseTest
     public function testErrorOnUpdate()
     {
         $id = 'invalid';
-        $params = $this->getFirstCustomer();
+        $params = $this->getLastCustomer();
         $customer = $this->cobreFacil->customer();
         try {
             $customer->update($id, $params);
@@ -136,7 +134,7 @@ class CustomerTest extends BaseTest
 
     public function testDelete()
     {
-        $response = $this->cobreFacil->customer()->delete($this->getFirstCustomer()['id']);
+        $response = $this->cobreFacil->customer()->delete($this->getLastCustomerId());
         $this->assertNotNull($response['deleted_at']);
     }
 
@@ -150,16 +148,6 @@ class CustomerTest extends BaseTest
             $this->assertEquals("v1/customers/$id", $customer->getUri());
             $this->assertResourceNotFoundException($e);
         }
-    }
-
-    private function getValidId(): string
-    {
-        return $this->getFirstCustomer()['id'];
-    }
-
-    private function getFirstCustomer(): array
-    {
-        return $this->cobreFacil->customer()->list()[0];
     }
 
     private function assertResourceNotFoundException(Exception $exception)

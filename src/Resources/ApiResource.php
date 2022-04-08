@@ -3,6 +3,9 @@
 namespace CobreFacil\Resources;
 
 use CobreFacil\Exceptions\InvalidCredentialsException;
+use CobreFacil\Exceptions\InvalidParamsException;
+use CobreFacil\Exceptions\ResourceException;
+use CobreFacil\Exceptions\ResourceNotFoundException;
 use Exception;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ClientException;
@@ -21,6 +24,9 @@ abstract class ApiResource
     /** @var array */
     protected $headers;
 
+    /** @var string */
+    protected $id;
+
     public function __construct(ClientInterface $client, string $token = null)
     {
         $this->client = $client;
@@ -33,7 +39,11 @@ abstract class ApiResource
 
     public function getUri(): string
     {
-        return $this->apiVersion . '/' . $this->endpoint;
+        $uri = $this->apiVersion . '/' . $this->endpoint;
+        if ($this->hasId()) {
+            $uri .= '/' . $this->getId();
+        }
+        return $uri;
     }
 
     public function getHeaders(): ?array
@@ -46,10 +56,42 @@ abstract class ApiResource
         $this->headers = $headers;
     }
 
+    public function hasId(): bool
+    {
+        return !empty($this->id);
+    }
+
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+    public function setId(string $id): ApiResource
+    {
+        $this->id = $id;
+        return $this;
+    }
+
     /**
-     * @throws InvalidCredentialsException
+     * @throws ResourceException
      */
-    protected function post(array $params): array
+    protected function getRequest(?array $queryParams = null): array
+    {
+        try {
+            $response = $this->client->get($this->getUri(), [
+                'headers' => $this->getHeaders(),
+                'query' => $queryParams,
+            ]);
+            return $this->parseResponse($response);
+        } catch (ClientException $e) {
+            throw $this->parseClientException($e);
+        }
+    }
+
+    /**
+     * @throws ResourceException
+     */
+    protected function postRequest(array $params): array
     {
         try {
             $response = $this->client->post($this->getUri(), [
@@ -63,12 +105,51 @@ abstract class ApiResource
     }
 
     /**
-     * @return ClientException|InvalidCredentialsException
+     * @throws ResourceException
+     */
+    protected function putRequest(array $params): array
+    {
+        try {
+            $response = $this->client->put($this->getUri(), [
+                'headers' => $this->getHeaders(),
+                'form_params' => $params,
+            ]);
+            return $this->parseResponse($response);
+        } catch (ClientException $e) {
+            throw $this->parseClientException($e);
+        }
+    }
+
+    /**
+     * @throws ResourceException
+     */
+    protected function deleteRequest(): array
+    {
+        try {
+            $response = $this->client->delete($this->getUri(), [
+                'headers' => $this->getHeaders(),
+            ]);
+            return $this->parseResponse($response);
+        } catch (ClientException $e) {
+            throw $this->parseClientException($e);
+        }
+    }
+
+    /**
+     * @return ClientException|ResourceException
      */
     private function parseClientException(ClientException $e): Exception
     {
-        if ($e->getCode() === 401) {
+        $code = $e->getCode();
+        $body = json_decode($e->getResponse()->getBody(), true);
+        if (400 === $code) {
+            return InvalidParamsException::createByBody($body);
+        }
+        if (401 === $code) {
             return new InvalidCredentialsException();
+        }
+        if (404 === $code) {
+            return new ResourceNotFoundException($body['message'], $code);
         }
         return $e;// @codeCoverageIgnore
     }

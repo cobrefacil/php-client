@@ -2,8 +2,6 @@
 
 namespace CobreFacil\Exceptions;
 
-use Exception;
-
-class InvalidCredentialsException extends Exception
+class InvalidCredentialsException extends ResourceException
 {
 }

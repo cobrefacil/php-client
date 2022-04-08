@@ -14,7 +14,7 @@ class Authentication extends ApiResource
      */
     public function authenticate(string $appId, string $secret): array
     {
-        return $this->post([
+        return $this->postRequest([
             'app_id' => $appId,
             'secret' => $secret,
         ]);

@@ -132,8 +132,7 @@ class InvoiceTest extends BaseTest
         try {
             $invoice->getById('invalid');
         } catch (ResourceNotFoundException $e) {
-            $this->assertEquals("v1/invoices/$id", $invoice->getUri());
-            $this->assertEquals('Cobrança não encontrada.', $e->getMessage());
+            $this->assertInvoiceNotFound($id, $invoice, $e);
         }
     }
 
@@ -150,8 +149,7 @@ class InvoiceTest extends BaseTest
         try {
             $invoice->remove('invalid');
         } catch (ResourceNotFoundException $e) {
-            $this->assertEquals("v1/invoices/$id", $invoice->getUri());
-            $this->assertEquals('Cobrança não encontrada.', $e->getMessage());
+            $this->assertInvoiceNotFound($id, $invoice, $e);
         }
     }
 
@@ -172,5 +170,11 @@ class InvoiceTest extends BaseTest
     protected function getLastInvoice(array $filter = null): array
     {
         return $this->cobreFacil->invoice()->search($filter)[0];
+    }
+
+    private function assertInvoiceNotFound(string $id, Invoice $invoice, ResourceNotFoundException $exception)
+    {
+        $this->assertEquals("v1/invoices/$id", $invoice->getUri());
+        $this->assertResourceNotFoundException($exception, 'Cobrança não encontrada.');
     }
 }

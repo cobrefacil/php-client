@@ -5,7 +5,6 @@ namespace CobreFacil\Resources;
 use CobreFacil\BaseTest;
 use CobreFacil\Exceptions\InvalidParamsException;
 use CobreFacil\Exceptions\ResourceNotFoundException;
-use Exception;
 use Faker\Factory;
 use Faker\Provider\pt_BR\Person;
 use Faker\Provider\pt_BR\PhoneNumber;
@@ -103,9 +102,8 @@ class CustomerTest extends BaseTest
         $customer = $this->cobreFacil->customer();
         try {
             $customer->getById($id);
-        } catch (Exception $e) {
-            $this->assertEquals("v1/customers/$id", $customer->getUri());
-            $this->assertResourceNotFoundException($e);
+        } catch (ResourceNotFoundException $e) {
+            $this->assertCustomerNotFound($id, $customer, $e);
         }
     }
 
@@ -126,9 +124,8 @@ class CustomerTest extends BaseTest
         $customer = $this->cobreFacil->customer();
         try {
             $customer->update($id, $params);
-        } catch (Exception $e) {
-            $this->assertEquals("v1/customers/$id", $customer->getUri());
-            $this->assertResourceNotFoundException($e);
+        } catch (ResourceNotFoundException $e) {
+            $this->assertCustomerNotFound($id, $customer, $e);
         }
     }
 
@@ -144,15 +141,14 @@ class CustomerTest extends BaseTest
         $customer = $this->cobreFacil->customer();
         try {
             $customer->remove($id);
-        } catch (Exception $e) {
-            $this->assertEquals("v1/customers/$id", $customer->getUri());
-            $this->assertResourceNotFoundException($e);
+        } catch (ResourceNotFoundException $e) {
+            $this->assertCustomerNotFound($id, $customer, $e);
         }
     }
 
-    private function assertResourceNotFoundException(Exception $exception)
+    private function assertCustomerNotFound(string $id, Customer $customer, ResourceNotFoundException $exception)
     {
-        $this->assertInstanceOf(ResourceNotFoundException::class, $exception);
-        $this->assertEquals('Cliente não encontrado.', $exception->getMessage());
+        $this->assertEquals("v1/customers/$id", $customer->getUri());
+        $this->assertResourceNotFoundException($exception, 'Cliente não encontrado.');
     }
 }

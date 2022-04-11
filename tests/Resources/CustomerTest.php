@@ -135,7 +135,7 @@ class CustomerTest extends BaseTest
     public function testRemove()
     {
         $response = $this->cobreFacil->customer()->remove($this->getLastCustomerId());
-        $this->assertNotNull($response['removed_at']);
+        $this->assertNotNull($response['deleted_at']);
     }
 
     public function testErrorOnRemove()

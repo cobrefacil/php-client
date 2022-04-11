@@ -27,6 +27,9 @@ abstract class ApiResource
     /** @var string */
     protected $id;
 
+    /** @var string */
+    protected $lastRequestUri;
+
     public function __construct(ClientInterface $client, string $token = null)
     {
         $this->client = $client;
@@ -37,11 +40,14 @@ abstract class ApiResource
         }
     }
 
-    public function getUri(): string
+    public function getUri(string $additionalUri = null): string
     {
         $uri = $this->apiVersion . '/' . $this->endpoint;
         if ($this->hasId()) {
             $uri .= '/' . $this->getId();
+        }
+        if (!empty($additionalUri)) {
+            $uri .= '/' . $additionalUri;
         }
         return $uri;
     }
@@ -72,13 +78,20 @@ abstract class ApiResource
         return $this;
     }
 
+    public function getLastRequestUri(): string
+    {
+        return $this->lastRequestUri;
+    }
+
     /**
      * @throws ResourceException
      */
     protected function get(?array $queryParams = null): array
     {
+        $uri = $this->getUri();
+        $this->lastRequestUri = $uri;
         try {
-            $response = $this->client->get($this->getUri(), [
+            $response = $this->client->get($uri, [
                 'headers' => $this->getHeaders(),
                 'query' => $queryParams,
             ]);
@@ -91,13 +104,16 @@ abstract class ApiResource
     /**
      * @throws ResourceException
      */
-    protected function post(array $params): array
+    protected function post(array $params = null, string $additionalUri = null): array
     {
+        $data['headers'] = $this->getHeaders();
+        if (!empty($params)) {
+            $data['form_params'] = $params;
+        }
+        $uri = $this->getUri($additionalUri);
+        $this->lastRequestUri = $uri;
         try {
-            $response = $this->client->post($this->getUri(), [
-                'headers' => $this->getHeaders(),
-                'form_params' => $params,
-            ]);
+            $response = $this->client->post($uri, $data);
             return $this->parseResponse($response);
         } catch (ClientException $e) {
             throw $this->parseClientException($e);
@@ -109,8 +125,10 @@ abstract class ApiResource
      */
     protected function put(array $params): array
     {
+        $uri = $this->getUri();
+        $this->lastRequestUri = $uri;
         try {
-            $response = $this->client->put($this->getUri(), [
+            $response = $this->client->put($uri, [
                 'headers' => $this->getHeaders(),
                 'form_params' => $params,
             ]);
@@ -125,8 +143,10 @@ abstract class ApiResource
      */
     protected function delete(): array
     {
+        $uri = $this->getUri();
+        $this->lastRequestUri = $uri;
         try {
-            $response = $this->client->delete($this->getUri(), [
+            $response = $this->client->delete($uri, [
                 'headers' => $this->getHeaders(),
             ]);
             return $this->parseResponse($response);

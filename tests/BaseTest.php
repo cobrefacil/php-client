@@ -3,6 +3,7 @@
 namespace CobreFacil;
 
 use CobreFacil\Exceptions\InvalidParamsException;
+use CobreFacil\Exceptions\ResourceNotFoundException;
 use Dotenv\Dotenv;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
@@ -42,6 +43,16 @@ abstract class BaseTest extends TestCase
         ]);
     }
 
+    protected function getLastCardId(): string
+    {
+        return $this->getLastCard()['id'];
+    }
+
+    protected function getLastCard(): array
+    {
+        return $this->cobreFacil->card()->search()[0];
+    }
+
     protected function getLastCustomerId(): string
     {
         return $this->getLastCustomer()['id'];
@@ -57,5 +68,10 @@ abstract class BaseTest extends TestCase
         $this->assertEquals('Parâmetros inválidos.', $exception->getMessage());
         $this->assertEquals(400, $exception->getCode());
         $this->assertEquals($expectedErrors, $exception->getErrors());
+    }
+
+    protected function assertResourceNotFoundException(ResourceNotFoundException $exception, string $expectedMessage)
+    {
+        $this->assertEquals($expectedMessage, $exception->getMessage());
     }
 }

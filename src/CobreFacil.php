@@ -3,6 +3,7 @@
 namespace CobreFacil;
 
 use CobreFacil\Resources\Authentication;
+use CobreFacil\Resources\Card;
 use CobreFacil\Resources\Customer;
 use CobreFacil\Resources\Invoice;
 use GuzzleHttp\Client;
@@ -23,7 +24,7 @@ class CobreFacil
     private $token;
 
     /**
-     * @throws Exceptions\InvalidCredentialsException
+     * @throws Exceptions\ResourceException
      */
     public function __construct(string $appId, string $secret, ClientInterface $client = null)
     {
@@ -63,6 +64,11 @@ class CobreFacil
     public function customer(): Customer
     {
         return new Customer($this->client, $this->token);
+    }
+
+    public function card(): Card
+    {
+        return new Card($this->client, $this->token);
     }
 
     public function invoice(): Invoice

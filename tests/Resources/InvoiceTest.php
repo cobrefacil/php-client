@@ -100,6 +100,57 @@ class InvoiceTest extends BaseTest
         }
     }
 
+    public function testCreateInvoicePayableWithCredit()
+    {
+        $params = [
+            'payable_with' => Invoice::PAYMENT_METHOD_CREDIT,
+            'customer_id' => $this->getLastCustomerId(),
+            'credit_card_id' => $this->getLastCardId(),
+            'capture' => 1,
+            'items' => [
+                [
+                    'description' => 'Teclado',
+                    'quantity' => 1,
+                    'price' => 4999,
+                ],
+                [
+                    'description' => 'Mouse',
+                    'quantity' => 1,
+                    'price' => 3999,
+                ],
+            ],
+        ];
+        $response = $this->cobreFacil->invoice()->create($params);
+        $this->assertNotNull($response['id']);
+        $this->assertEquals(Invoice::PAYMENT_METHOD_CREDIT, $response['payable_with']);
+        $this->assertEquals(Invoice::STATUS_PROCESSING, $response['status']);
+    }
+
+    public function testCancelInvoicePayableWithCreditPreAuthorized()
+    {
+        $invoicePreAuthorized = $this->createInvoicePreAuthorized();
+        $response = $this->cobreFacil->invoice()->cancel($invoicePreAuthorized['id']);
+        $this->assertEquals(Invoice::STATUS_CANCELED, $response['status']);
+        $this->assertEquals($invoicePreAuthorized['price'], $response['amount_refunded']);
+    }
+
+    public function testRefundTotalAmountOfAnInvoicePaidWithCredit()
+    {
+        $invoicePaidWithCredit = $this->createInvoicePaidWithCredit();
+        $response = $this->cobreFacil->invoice()->refund($invoicePaidWithCredit['id']);
+        $this->assertEquals(Invoice::STATUS_REFUNDED, $response['status']);
+        $this->assertEquals($invoicePaidWithCredit['total_paid'], $response['amount_refunded']);
+    }
+
+    public function testRefundPartialAmountOfAnInvoicePaidWithCredit()
+    {
+        $invoicePaidWithCredit = $this->createInvoicePaidWithCredit();
+        $amountToRefund = 1.99;
+        $response = $this->cobreFacil->invoice()->refund($invoicePaidWithCredit['id'], $amountToRefund);
+        $this->assertEquals(Invoice::STATUS_REFUNDED, $response['status']);
+        $this->assertEquals($amountToRefund, $response['amount_refunded']);
+    }
+
     public function testSearch()
     {
         $response = $this->cobreFacil->invoice()->search();
@@ -138,7 +189,7 @@ class InvoiceTest extends BaseTest
 
     public function testCancelBankSlip()
     {
-        $response = $this->cobreFacil->invoice()->remove($this->getLastInvoiceId(['status' => Invoice::STATUS_PENDING]));
+        $response = $this->cobreFacil->invoice()->cancel($this->getLastInvoiceId(['status' => Invoice::STATUS_PENDING]));
         $this->assertEquals(Invoice::STATUS_CANCELED, $response['status']);
     }
 
@@ -147,7 +198,7 @@ class InvoiceTest extends BaseTest
         $id = 'invalid';
         $invoice = $this->cobreFacil->invoice();
         try {
-            $invoice->remove('invalid');
+            $invoice->cancel('invalid');
         } catch (ResourceNotFoundException $e) {
             $this->assertInvoiceNotFound($id, $invoice, $e);
         }
@@ -156,9 +207,9 @@ class InvoiceTest extends BaseTest
     public function testErrorOnCancelBankSlipAlreadyCanceled()
     {
         try {
-            $this->cobreFacil->invoice()->remove($this->getLastInvoiceId(['status' => Invoice::STATUS_CANCELED]));
+            $this->cobreFacil->invoice()->cancel($this->getLastInvoiceId(['status' => Invoice::STATUS_CANCELED]));
         } catch (InvalidParamsException $e) {
-            $this->assertEquals('Somente faturas pendentes podem ser canceladas.', $e->getMessage());
+            $this->assertEquals('Somente faturas pendentes ou pré autorizadas podem ser canceladas.', $e->getMessage());
         }
     }
 
@@ -170,6 +221,70 @@ class InvoiceTest extends BaseTest
     protected function getLastInvoice(array $filter = null): array
     {
         return $this->cobreFacil->invoice()->search($filter)[0];
+    }
+
+    private function createInvoicePreAuthorized(): array
+    {
+        $params = [
+            'payable_with' => Invoice::PAYMENT_METHOD_CREDIT,
+            'customer_id' => $this->getLastCustomerId(),
+            'capture' => 0,
+            'credit_card' => [
+                'name' => 'João da Silva',
+                'number' => Card::MAGIC_NUMBER_TO_APPROVE_VISA,
+                'expiration_month' => '12',
+                'expiration_year' => '2022',
+                'security_code' => '123',
+            ],
+            'items' => [
+                [
+                    'description' => 'Teclado',
+                    'quantity' => 1,
+                    'price' => 4999,
+                ],
+                [
+                    'description' => 'Mouse',
+                    'quantity' => 1,
+                    'price' => 3999,
+                ],
+            ],
+        ];
+        $invoice = $this->cobreFacil->invoice();
+        $response = $invoice->create($params);
+        $this->waitAsyncRequestBeProcessed();
+        return $invoice->getById($response['id']);
+    }
+
+    private function createInvoicePaidWithCredit(): array
+    {
+        $params = [
+            'payable_with' => Invoice::PAYMENT_METHOD_CREDIT,
+            'customer_id' => $this->getLastCustomerId(),
+            'capture' => 1,
+            'credit_card' => [
+                'name' => 'João da Silva',
+                'number' => Card::MAGIC_NUMBER_TO_APPROVE_VISA,
+                'expiration_month' => '12',
+                'expiration_year' => '2022',
+                'security_code' => '123',
+            ],
+            'items' => [
+                [
+                    'description' => 'Teclado',
+                    'quantity' => 1,
+                    'price' => 4999,
+                ],
+                [
+                    'description' => 'Mouse',
+                    'quantity' => 1,
+                    'price' => 3999,
+                ],
+            ],
+        ];
+        $invoice = $this->cobreFacil->invoice();
+        $response = $invoice->create($params);
+        $this->waitAsyncRequestBeProcessed();
+        return $invoice->getById($response['id']);
     }
 
     private function assertInvoiceNotFound(string $id, Invoice $invoice, ResourceNotFoundException $exception)

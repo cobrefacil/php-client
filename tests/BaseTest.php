@@ -63,6 +63,11 @@ abstract class BaseTest extends TestCase
         return $this->cobreFacil->customer()->search()[0];
     }
 
+    protected function waitAsyncRequestBeProcessed(): void
+    {
+        sleep(3);
+    }
+
     protected function assertInvalidParamsException(array $expectedErrors, InvalidParamsException $exception)
     {
         $this->assertEquals('Parâmetros inválidos.', $exception->getMessage());

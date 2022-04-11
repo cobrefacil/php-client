@@ -15,6 +15,10 @@ class Card extends ApiResource
     use Remove;
     use Search;
 
+    const MAGIC_NUMBER_TO_APPROVE_VISA = '4539003370725497';
+    const MAGIC_NUMBER_TO_APPROVE_MASTERCARD = '5356066320271893';
+    const MAGIC_NUMBER_TO_DENY = '6011457819940087';
+
     protected $endpoint = 'cards';
 
     /**

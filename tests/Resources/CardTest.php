@@ -14,16 +14,14 @@ class CardTest extends BaseTest
     {
         Payment::$expirationDateFormat = 'm/Y';
         $faker = Factory::create();
-        $creditCard = $faker->creditCardDetails;
-        [$expirationMonth, $expirationYear] = explode('/', $creditCard['expirationDate']);
         $params = [
             'default' => 1,
             'customer_id' => $this->getLastCustomerId(),
-            'name' => $creditCard['name'],
-            'number' => $creditCard['number'],
-            'expiration_month' => $expirationMonth,
-            'expiration_year' => $expirationYear,
-            'security_code' => $faker->randomNumber(3),
+            'name' => $faker->name,
+            'number' => Card::MAGIC_NUMBER_TO_APPROVE_MASTERCARD,
+            'expiration_month' => date('m'),
+            'expiration_year' => date('Y'),
+            'security_code' => $faker->randomNumber(3, true),
         ];
         $response = $this->cobreFacil->card()->create($params);
         $this->assertIsString($response['id']);
@@ -38,17 +36,14 @@ class CardTest extends BaseTest
     {
         Payment::$expirationDateFormat = 'm/Y';
         $faker = Factory::create();
-        $creditCard = $faker->creditCardDetails;
-        [$expirationMonth] = explode('/', $creditCard['expirationDate']);
-        $expirationYear = 2001;
         $params = [
             'default' => 1,
             'customer_id' => $this->getLastCustomerId(),
-            'name' => $creditCard['name'],
-            'number' => $creditCard['number'],
-            'expiration_month' => $expirationMonth,
-            'expiration_year' => $expirationYear,
-            'security_code' => $faker->randomNumber(3),
+            'name' => $faker->name,
+            'number' => Card::MAGIC_NUMBER_TO_APPROVE_MASTERCARD,
+            'expiration_month' => '01',
+            'expiration_year' => '2001',
+            'security_code' => $faker->randomNumber(3, true),
         ];
         try {
             $this->cobreFacil->card()->create($params);

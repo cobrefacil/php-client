@@ -4,15 +4,14 @@ namespace CobreFacil\Resources;
 
 use CobreFacil\ApiOperations\Create;
 use CobreFacil\ApiOperations\Get;
-use CobreFacil\ApiOperations\Remove;
 use CobreFacil\ApiOperations\Search;
 use CobreFacil\ApiOperations\Update;
+use CobreFacil\Exceptions\ResourceException;
 
 class Invoice extends ApiResource
 {
     use Create;
     use Get;
-    use Remove;
     use Search;
     use Update;
 
@@ -32,4 +31,21 @@ class Invoice extends ApiResource
     const PAYMENT_METHOD_PIX = 'pix';
 
     protected $endpoint = 'invoices';
+
+    /**
+     * @throws ResourceException
+     */
+    public function cancel(string $id): array
+    {
+        return $this->setId($id)->delete();
+    }
+
+    /**
+     * @throws ResourceException
+     */
+    public function refund(string $id, float $amount = null): array
+    {
+        $params = empty($amount) ? null : ['amount' => $amount];
+        return $this->setId($id)->post($params, 'refund');
+    }
 }

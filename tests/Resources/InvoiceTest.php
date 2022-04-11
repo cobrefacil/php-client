@@ -10,7 +10,7 @@ use DateTime;
 
 class InvoiceTest extends BaseTest
 {
-    public function testCreateBankSlip()
+    public function testCreateInvoicePayableWithBankSlip()
     {
         $params = [
             'payable_with' => Invoice::PAYMENT_METHOD_BANKSLIP,
@@ -52,7 +52,58 @@ class InvoiceTest extends BaseTest
         $this->assertEquals(Invoice::STATUS_PROCESSING, $response['status']);
     }
 
-    public function testErrorOnCreateBankSlipWithInvalidDueDate()
+    public function testCreateInvoicePayableWithCredit()
+    {
+        $params = [
+            'payable_with' => Invoice::PAYMENT_METHOD_CREDIT,
+            'customer_id' => $this->getLastCustomerId(),
+            'credit_card_id' => $this->getLastCardId(),
+            'capture' => 1,
+            'items' => [
+                [
+                    'description' => 'Teclado',
+                    'quantity' => 1,
+                    'price' => 4999,
+                ],
+                [
+                    'description' => 'Mouse',
+                    'quantity' => 1,
+                    'price' => 3999,
+                ],
+            ],
+        ];
+        $response = $this->cobreFacil->invoice()->create($params);
+        $this->assertNotNull($response['id']);
+        $this->assertEquals(Invoice::PAYMENT_METHOD_CREDIT, $response['payable_with']);
+        $this->assertEquals(Invoice::STATUS_PROCESSING, $response['status']);
+    }
+
+    public function testCreateInvoicePayableWithPix()
+    {
+        $params = [
+            'payable_with' => Invoice::PAYMENT_METHOD_PIX,
+            'customer_id' => $this->getLastCustomerId(),
+            'due_date' => date('Y-m-d'),
+            'items' => [
+                [
+                    'description' => 'Teclado',
+                    'quantity' => 1,
+                    'price' => 4999,
+                ],
+                [
+                    'description' => 'Mouse',
+                    'quantity' => 1,
+                    'price' => 3999,
+                ],
+            ],
+        ];
+        $response = $this->cobreFacil->invoice()->create($params);
+        $this->assertNotNull($response['id']);
+        $this->assertEquals(Invoice::PAYMENT_METHOD_PIX, $response['payable_with']);
+        $this->assertEquals(Invoice::STATUS_PROCESSING, $response['status']);
+    }
+
+    public function testErrorOnCreateInvoicePayableWithBankSlipWithInvalidDueDate()
     {
         $yesterday = (new DateTime())->sub(new DateInterval('P1D'))->format('Y-m-d');
         $params = [
@@ -100,13 +151,13 @@ class InvoiceTest extends BaseTest
         }
     }
 
-    public function testCreateInvoicePayableWithCredit()
+    public function testErrorOnCreateInvoicePayableWithPixWithInvalidDueDate()
     {
+        $yesterday = (new DateTime())->sub(new DateInterval('P1D'))->format('Y-m-d');
         $params = [
-            'payable_with' => Invoice::PAYMENT_METHOD_CREDIT,
+            'payable_with' => Invoice::PAYMENT_METHOD_PIX,
             'customer_id' => $this->getLastCustomerId(),
-            'credit_card_id' => $this->getLastCardId(),
-            'capture' => 1,
+            'due_date' => $yesterday,
             'items' => [
                 [
                     'description' => 'Teclado',
@@ -120,10 +171,14 @@ class InvoiceTest extends BaseTest
                 ],
             ],
         ];
-        $response = $this->cobreFacil->invoice()->create($params);
-        $this->assertNotNull($response['id']);
-        $this->assertEquals(Invoice::PAYMENT_METHOD_CREDIT, $response['payable_with']);
-        $this->assertEquals(Invoice::STATUS_PROCESSING, $response['status']);
+        try {
+            $this->cobreFacil->invoice()->create($params);
+        } catch (InvalidParamsException $e) {
+            $expectedErrors = [
+                'Data de vencimento deve ser uma data maior ou igual a hoje.',
+            ];
+            $this->assertInvalidParamsException($expectedErrors, $e);
+        }
     }
 
     public function testCancelInvoicePayableWithCreditPreAuthorized()

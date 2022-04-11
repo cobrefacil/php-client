@@ -18,7 +18,6 @@ abstract class BaseTest extends TestCase
     {
         parent::__construct($name, $data, $dataName);
         Dotenv::createImmutable(__DIR__ . '/..')->load();
-        CobreFacil::$production = false;
     }
 
     protected function setUp()
@@ -28,11 +27,10 @@ abstract class BaseTest extends TestCase
 
     protected function createCobreFacilClient(): CobreFacil
     {
-        CobreFacil::$production = false;
         $appId = $_ENV['APP_ID'];
         $secret = $_ENV['SECRET'];
         $httpClient = $this->createHttpClient();
-        return new CobreFacil($appId, $secret, $httpClient);
+        return new CobreFacil($appId, $secret, false, $httpClient);
     }
 
     protected function createHttpClient(): ClientInterface

@@ -15,8 +15,8 @@ class AuthenticationTest extends BaseTest
     public function testAuthenticateWithValidCredentials($appId, $secret, $httpClient)
     {
         $cobreFacil = $httpClient
-            ? new CobreFacil($appId, $secret, $httpClient)
-            : new CobreFacil($appId, $secret);
+            ? new CobreFacil($appId, $secret, false, $httpClient)
+            : new CobreFacil($appId, $secret, false);
         $this->assertNotNull($cobreFacil->getToken());
     }
 
@@ -26,7 +26,7 @@ class AuthenticationTest extends BaseTest
             $appId = 'invalid';
             $secret = 'invalid';
             $httpClient = $this->createHttpClient();
-            new CobreFacil($appId, $secret, $httpClient);
+            new CobreFacil($appId, $secret, false, $httpClient);
         } catch (Throwable $e) {
             $this->assertInstanceOf(InvalidCredentialsException::class, $e);
         }

@@ -14,9 +14,6 @@ class CobreFacil
     const URI_PRODUCTION = 'https://api.cobrefacil.com.br';
     const URI_SANDBOX = 'https://api.sandbox.cobrefacil.com.br';
 
-    /** @var bool */
-    public static $production = true;
-
     /** @var ClientInterface */
     private $client;
 
@@ -26,13 +23,17 @@ class CobreFacil
     /**
      * @throws Exceptions\ResourceException
      */
-    public function __construct(string $appId, string $secret, ClientInterface $client = null)
-    {
+    public function __construct(
+        string $appId,
+        string $secret,
+        bool $production = true,
+        ClientInterface $client = null
+    ) {
         if ($client) {
             $this->setClient($client);
         } else {
             $this->setClient(new Client([
-                'base_uri' => self::$production ? self::URI_PRODUCTION : self::URI_SANDBOX,
+                'base_uri' => $production ? self::URI_PRODUCTION : self::URI_SANDBOX,
                 'timeout' => 0,
             ]));
         }

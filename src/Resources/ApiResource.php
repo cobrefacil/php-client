@@ -162,14 +162,13 @@ abstract class ApiResource
     {
         $code = $e->getCode();
         $body = json_decode($e->getResponse()->getBody(), true);
-        if (400 === $code) {
-            return InvalidParamsException::createByBody($body, $code);
-        }
-        if (401 === $code) {
-            return new InvalidCredentialsException();
-        }
-        if (404 === $code) {
-            return new ResourceNotFoundException($body['message'], $code);
+        switch ($code) {
+            case 400:
+                return InvalidParamsException::createByBody($body, $code);
+            case 401:
+                return new InvalidCredentialsException();
+            case 404:
+                return new ResourceNotFoundException($body['message'], $code);
         }
         return $e;// @codeCoverageIgnore
     }

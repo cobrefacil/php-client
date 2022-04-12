@@ -181,6 +181,17 @@ class InvoiceTest extends BaseTest
         }
     }
 
+    public function testCaptureInvoicePayableWithCreditPreAuthorized()
+    {
+        $invoicePreAuthorized = $this->createInvoicePreAuthorized();
+        $id = $invoicePreAuthorized['id'];
+        $invoice = $this->cobreFacil->invoice();
+        $response = $invoice->capture($id);
+        $this->assertEquals("v1/invoices/$id/capture", $invoice->getLastRequestUri());
+        $this->assertEquals(Invoice::STATUS_PAID, $response['status']);
+        $this->assertEquals($invoicePreAuthorized['price'], $response['total_paid']);
+    }
+
     public function testCancelInvoicePayableWithCreditPreAuthorized()
     {
         $invoicePreAuthorized = $this->createInvoicePreAuthorized();

@@ -104,7 +104,7 @@ abstract class ApiResource
     /**
      * @throws ResourceException
      */
-    protected function post(array $params = null, string $additionalUri = null): array
+    protected function post(?array $params = null, string $additionalUri = null): array
     {
         $data['headers'] = $this->getHeaders();
         if (!empty($params)) {

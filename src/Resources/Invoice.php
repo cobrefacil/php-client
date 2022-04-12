@@ -35,6 +35,15 @@ class Invoice extends ApiResource
     /**
      * @throws ResourceException
      */
+    public function capture(string $id, float $amount = null): array
+    {
+        $params = empty($amount) ? null : ['amount' => $amount];
+        return $this->setId($id)->post($params, 'capture');
+    }
+
+    /**
+     * @throws ResourceException
+     */
     public function cancel(string $id): array
     {
         return $this->setId($id)->delete();

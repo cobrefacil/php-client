@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 abstract class BaseTest extends TestCase
 {
     /** @var CobreFacil */
-    protected $cobreFacil;
+    protected $cobrefacil;
 
     public function __construct($name = null, array $data = [], $dataName = '')
     {
@@ -22,7 +22,7 @@ abstract class BaseTest extends TestCase
 
     protected function setUp()
     {
-        $this->cobreFacil = $this->createCobreFacilClient();
+        $this->cobrefacil = $this->createCobreFacilClient();
     }
 
     protected function createCobreFacilClient(): CobreFacil
@@ -48,7 +48,7 @@ abstract class BaseTest extends TestCase
 
     protected function getLastCard(): array
     {
-        return $this->cobreFacil->card()->search()[0];
+        return $this->cobrefacil->card->search()[0];
     }
 
     protected function getLastCustomerId(): string
@@ -58,7 +58,7 @@ abstract class BaseTest extends TestCase
 
     protected function getLastCustomer(): array
     {
-        return $this->cobreFacil->customer()->search()[0];
+        return $this->cobrefacil->customer->search()[0];
     }
 
     protected function waitAsyncRequestBeProcessed(): void

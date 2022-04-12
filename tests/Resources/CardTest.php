@@ -23,7 +23,7 @@ class CardTest extends BaseTest
             'expiration_year' => date('Y'),
             'security_code' => $faker->randomNumber(3, true),
         ];
-        $response = $this->cobreFacil->card()->create($params);
+        $response = $this->cobrefacil->card->create($params);
         $this->assertIsString($response['id']);
         $this->assertEquals($params['customer_id'], $response['customer_id']);
         $this->assertEquals($params['default'], $response['default']);
@@ -46,7 +46,7 @@ class CardTest extends BaseTest
             'security_code' => $faker->randomNumber(3, true),
         ];
         try {
-            $this->cobreFacil->card()->create($params);
+            $this->cobrefacil->card->create($params);
         } catch (InvalidParamsException $e) {
             $expectedErrors = [
                 'O cartão de crédito informado está vencido.',
@@ -57,7 +57,7 @@ class CardTest extends BaseTest
 
     public function testSearch()
     {
-        $response = $this->cobreFacil->card()->search();
+        $response = $this->cobrefacil->card->search();
         $this->assertTrue(isset($response[0]['id']));
     }
 
@@ -68,7 +68,7 @@ class CardTest extends BaseTest
         $filter = [
             'expiration' => $expiration,
         ];
-        $response = $this->cobreFacil->card()->search($filter);
+        $response = $this->cobrefacil->card->search($filter);
         $this->assertGreaterThanOrEqual(1, count($response));
         foreach ($response as $card) {
             $this->assertEquals($expiration, $card['expiration_year'] . '-' . $card['expiration_month']);
@@ -77,14 +77,14 @@ class CardTest extends BaseTest
 
     public function testGetById()
     {
-        $response = $this->cobreFacil->card()->getById($this->getLastCardId());
+        $response = $this->cobrefacil->card->getById($this->getLastCardId());
         $this->assertIsString($response['id']);
     }
 
     public function testErrorOnGetByInvalidId()
     {
         $id = 'invalid';
-        $card = $this->cobreFacil->card();
+        $card = $this->cobrefacil->card;
         try {
             $card->getById($id);
         } catch (ResourceNotFoundException $e) {
@@ -95,7 +95,7 @@ class CardTest extends BaseTest
     public function testSetDefault()
     {
         $id = $this->getLastCardId();
-        $card = $this->cobreFacil->card();
+        $card = $this->cobrefacil->card;
         $response = $card->setDefault($id);
         $this->assertEquals("v1/cards/$id/default", $card->getLastRequestUri());
         $this->assertEquals(1, $response['default']);
@@ -104,7 +104,7 @@ class CardTest extends BaseTest
     public function testErrorOnSetDefault()
     {
         $id = 'invalid';
-        $card = $this->cobreFacil->card();
+        $card = $this->cobrefacil->card;
         try {
             $card->setDefault($id);
         } catch (ResourceNotFoundException $e) {
@@ -115,7 +115,7 @@ class CardTest extends BaseTest
     public function testRemove()
     {
         $id = $this->getLastCardId();
-        $card = $this->cobreFacil->card();
+        $card = $this->cobrefacil->card;
         $response = $card->remove($id);
         $this->assertEquals("v1/cards/$id", $card->getLastRequestUri());
         $this->assertEquals($id, $response['id']);
@@ -125,7 +125,7 @@ class CardTest extends BaseTest
     public function testErrorOnRemove()
     {
         $id = 'invalid';
-        $card = $this->cobreFacil->card();
+        $card = $this->cobrefacil->card;
         try {
             $card->remove($id);
         } catch (ResourceNotFoundException $e) {

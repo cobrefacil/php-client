@@ -6,9 +6,16 @@ use CobreFacil\Resources\Authentication;
 use CobreFacil\Resources\Card;
 use CobreFacil\Resources\Customer;
 use CobreFacil\Resources\Invoice;
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 
+/**
+ * @property Authentication $authentication
+ * @property Customer $customer
+ * @property Card $card
+ * @property Invoice $invoice
+ */
 class CobreFacil
 {
     const URI_PRODUCTION = 'https://api.cobrefacil.com.br';
@@ -39,6 +46,17 @@ class CobreFacil
         }
         $response = $this->authentication()->authenticate($appId, $secret);
         $this->setToken($response['token']);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function __get($name)
+    {
+        if (!method_exists($this, $name)) {
+            throw new Exception("Nenhum recurso foi encontrado com o nome \"$name\".");
+        }
+        return $this->$name();
     }
 
     public function setClient(ClientInterface $client)

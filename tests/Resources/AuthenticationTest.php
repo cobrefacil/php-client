@@ -14,10 +14,10 @@ class AuthenticationTest extends BaseTest
      */
     public function testAuthenticateWithValidCredentials($appId, $secret, $httpClient)
     {
-        $cobreFacil = $httpClient
+        $cobrefacil = $httpClient
             ? new CobreFacil($appId, $secret, false, $httpClient)
             : new CobreFacil($appId, $secret, false);
-        $this->assertNotNull($cobreFacil->getToken());
+        $this->assertNotNull($cobrefacil->getToken());
     }
 
     public function testErrorOnAuthenticateWithInvalidCredentials()

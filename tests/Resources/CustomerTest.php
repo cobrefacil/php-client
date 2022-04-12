@@ -34,7 +34,7 @@ class CustomerTest extends BaseTest
                 'state' => 'SP',
             ],
         ];
-        $response = $this->cobreFacil->customer()->create($params);
+        $response = $this->cobrefacil->customer->create($params);
         $this->assertTrue(isset($response['id']));
         $this->assertEquals($params['person_type'], $response['person_type']);
         $this->assertEquals($params['taxpayer_id'], $response['taxpayer_id']);
@@ -58,7 +58,7 @@ class CustomerTest extends BaseTest
         try {
             $faker = Factory::create();
             $phoneNumber = new PhoneNumber($faker);
-            $this->cobreFacil->customer()->create([
+            $this->cobrefacil->customer->create([
                 'person_type' => '1',
                 'taxpayer_id' => (new Person($faker))->cpf(false),
                 'personal_name' => $faker->name,
@@ -77,7 +77,7 @@ class CustomerTest extends BaseTest
 
     public function testSearch()
     {
-        $response = $this->cobreFacil->customer()->search();
+        $response = $this->cobrefacil->customer->search();
         $this->assertTrue(isset($response[0]['id']));
     }
 
@@ -86,20 +86,20 @@ class CustomerTest extends BaseTest
         $filter = [
             'email' => $this->getLastCustomer()['email'],
         ];
-        $response = $this->cobreFacil->customer()->search($filter);
+        $response = $this->cobrefacil->customer->search($filter);
         $this->assertEquals($response[0]['email'], $filter['email']);
     }
 
     public function testGetById()
     {
-        $response = $this->cobreFacil->customer()->getById($this->getLastCustomerId());
+        $response = $this->cobrefacil->customer->getById($this->getLastCustomerId());
         $this->assertIsString($response['id']);
     }
 
     public function testErrorOnGetByInvalidId()
     {
         $id = 'invalid';
-        $customer = $this->cobreFacil->customer();
+        $customer = $this->cobrefacil->customer;
         try {
             $customer->getById($id);
         } catch (ResourceNotFoundException $e) {
@@ -113,7 +113,7 @@ class CustomerTest extends BaseTest
         $customerToUpdate = $this->getLastCustomer();
         $params = $customerToUpdate;
         $params['personal_name'] = $faker->name;
-        $response = $this->cobreFacil->customer()->update($customerToUpdate['id'], $params);
+        $response = $this->cobrefacil->customer->update($customerToUpdate['id'], $params);
         $this->assertEquals($params['personal_name'], $response['personal_name']);
     }
 
@@ -121,7 +121,7 @@ class CustomerTest extends BaseTest
     {
         $id = 'invalid';
         $params = $this->getLastCustomer();
-        $customer = $this->cobreFacil->customer();
+        $customer = $this->cobrefacil->customer;
         try {
             $customer->update($id, $params);
         } catch (ResourceNotFoundException $e) {
@@ -131,14 +131,14 @@ class CustomerTest extends BaseTest
 
     public function testRemove()
     {
-        $response = $this->cobreFacil->customer()->remove($this->getLastCustomerId());
+        $response = $this->cobrefacil->customer->remove($this->getLastCustomerId());
         $this->assertNotNull($response['deleted_at']);
     }
 
     public function testErrorOnRemove()
     {
         $id = 'invalid';
-        $customer = $this->cobreFacil->customer();
+        $customer = $this->cobrefacil->customer;
         try {
             $customer->remove($id);
         } catch (ResourceNotFoundException $e) {

@@ -47,7 +47,7 @@ class InvoiceTest extends BaseTest
                 ],
             ],
         ];
-        $response = $this->cobreFacil->invoice()->create($params);
+        $response = $this->cobrefacil->invoice->create($params);
         $this->assertNotNull($response['id']);
         $this->assertEquals(Invoice::STATUS_PROCESSING, $response['status']);
     }
@@ -72,7 +72,7 @@ class InvoiceTest extends BaseTest
                 ],
             ],
         ];
-        $response = $this->cobreFacil->invoice()->create($params);
+        $response = $this->cobrefacil->invoice->create($params);
         $this->assertNotNull($response['id']);
         $this->assertEquals(Invoice::PAYMENT_METHOD_CREDIT, $response['payable_with']);
         $this->assertEquals(Invoice::STATUS_PROCESSING, $response['status']);
@@ -97,7 +97,7 @@ class InvoiceTest extends BaseTest
                 ],
             ],
         ];
-        $response = $this->cobreFacil->invoice()->create($params);
+        $response = $this->cobrefacil->invoice->create($params);
         $this->assertNotNull($response['id']);
         $this->assertEquals(Invoice::PAYMENT_METHOD_PIX, $response['payable_with']);
         $this->assertEquals(Invoice::STATUS_PROCESSING, $response['status']);
@@ -142,7 +142,7 @@ class InvoiceTest extends BaseTest
             ],
         ];
         try {
-            $this->cobreFacil->invoice()->create($params);
+            $this->cobrefacil->invoice->create($params);
         } catch (InvalidParamsException $e) {
             $expectedErrors = [
                 'Data de vencimento deve ser uma data maior ou igual a hoje.',
@@ -172,7 +172,7 @@ class InvoiceTest extends BaseTest
             ],
         ];
         try {
-            $this->cobreFacil->invoice()->create($params);
+            $this->cobrefacil->invoice->create($params);
         } catch (InvalidParamsException $e) {
             $expectedErrors = [
                 'Data de vencimento deve ser uma data maior ou igual a hoje.',
@@ -185,7 +185,7 @@ class InvoiceTest extends BaseTest
     {
         $invoicePreAuthorized = $this->createInvoicePreAuthorized();
         $id = $invoicePreAuthorized['id'];
-        $invoice = $this->cobreFacil->invoice();
+        $invoice = $this->cobrefacil->invoice;
         $response = $invoice->capture($id);
         $this->assertEquals("v1/invoices/$id/capture", $invoice->getLastRequestUri());
         $this->assertEquals(Invoice::STATUS_PAID, $response['status']);
@@ -195,7 +195,7 @@ class InvoiceTest extends BaseTest
     public function testCancelInvoicePayableWithCreditPreAuthorized()
     {
         $invoicePreAuthorized = $this->createInvoicePreAuthorized();
-        $response = $this->cobreFacil->invoice()->cancel($invoicePreAuthorized['id']);
+        $response = $this->cobrefacil->invoice->cancel($invoicePreAuthorized['id']);
         $this->assertEquals(Invoice::STATUS_CANCELED, $response['status']);
         $this->assertEquals($invoicePreAuthorized['price'], $response['amount_refunded']);
     }
@@ -203,7 +203,7 @@ class InvoiceTest extends BaseTest
     public function testRefundTotalAmountOfAnInvoicePaidWithCredit()
     {
         $invoicePaidWithCredit = $this->createInvoicePaidWithCredit();
-        $response = $this->cobreFacil->invoice()->refund($invoicePaidWithCredit['id']);
+        $response = $this->cobrefacil->invoice->refund($invoicePaidWithCredit['id']);
         $this->assertEquals(Invoice::STATUS_REFUNDED, $response['status']);
         $this->assertEquals($invoicePaidWithCredit['total_paid'], $response['amount_refunded']);
     }
@@ -212,14 +212,14 @@ class InvoiceTest extends BaseTest
     {
         $invoicePaidWithCredit = $this->createInvoicePaidWithCredit();
         $amountToRefund = 1.99;
-        $response = $this->cobreFacil->invoice()->refund($invoicePaidWithCredit['id'], $amountToRefund);
+        $response = $this->cobrefacil->invoice->refund($invoicePaidWithCredit['id'], $amountToRefund);
         $this->assertEquals(Invoice::STATUS_REFUNDED, $response['status']);
         $this->assertEquals($amountToRefund, $response['amount_refunded']);
     }
 
     public function testSearch()
     {
-        $response = $this->cobreFacil->invoice()->search();
+        $response = $this->cobrefacil->invoice->search();
         $this->assertTrue(isset($response[0]['id']));
     }
 
@@ -228,7 +228,7 @@ class InvoiceTest extends BaseTest
         $filter = [
             'email' => $this->getLastInvoice()['customer']['email'],
         ];
-        $response = $this->cobreFacil->invoice()->search($filter);
+        $response = $this->cobrefacil->invoice->search($filter);
         $this->assertGreaterThanOrEqual(1, count($response));
         foreach ($response as $invoice) {
             $this->assertEquals($filter['email'], $invoice['customer']['email']);
@@ -238,14 +238,14 @@ class InvoiceTest extends BaseTest
     public function testGetById()
     {
         $id = $this->getLastInvoiceId();
-        $response = $this->cobreFacil->invoice()->getById($id);
+        $response = $this->cobrefacil->invoice->getById($id);
         $this->assertEquals($id, $response['id']);
     }
 
     public function testErrorOnGetByInvalidId()
     {
         $id = 'invalid';
-        $invoice = $this->cobreFacil->invoice();
+        $invoice = $this->cobrefacil->invoice;
         try {
             $invoice->getById('invalid');
         } catch (ResourceNotFoundException $e) {
@@ -255,14 +255,14 @@ class InvoiceTest extends BaseTest
 
     public function testCancelBankSlip()
     {
-        $response = $this->cobreFacil->invoice()->cancel($this->getLastInvoiceId(['status' => Invoice::STATUS_PENDING]));
+        $response = $this->cobrefacil->invoice->cancel($this->getLastInvoiceId(['status' => Invoice::STATUS_PENDING]));
         $this->assertEquals(Invoice::STATUS_CANCELED, $response['status']);
     }
 
     public function testErrorOnCancelBankSlipWithInvalidId()
     {
         $id = 'invalid';
-        $invoice = $this->cobreFacil->invoice();
+        $invoice = $this->cobrefacil->invoice;
         try {
             $invoice->cancel('invalid');
         } catch (ResourceNotFoundException $e) {
@@ -273,7 +273,7 @@ class InvoiceTest extends BaseTest
     public function testErrorOnCancelBankSlipAlreadyCanceled()
     {
         try {
-            $this->cobreFacil->invoice()->cancel($this->getLastInvoiceId(['status' => Invoice::STATUS_CANCELED]));
+            $this->cobrefacil->invoice->cancel($this->getLastInvoiceId(['status' => Invoice::STATUS_CANCELED]));
         } catch (InvalidParamsException $e) {
             $this->assertEquals('Somente faturas pendentes ou pré autorizadas podem ser canceladas.', $e->getMessage());
         }
@@ -286,7 +286,7 @@ class InvoiceTest extends BaseTest
 
     protected function getLastInvoice(array $filter = null): array
     {
-        return $this->cobreFacil->invoice()->search($filter)[0];
+        return $this->cobrefacil->invoice->search($filter)[0];
     }
 
     private function createInvoicePreAuthorized(): array
@@ -315,7 +315,7 @@ class InvoiceTest extends BaseTest
                 ],
             ],
         ];
-        $invoice = $this->cobreFacil->invoice();
+        $invoice = $this->cobrefacil->invoice;
         $response = $invoice->create($params);
         $this->waitAsyncRequestBeProcessed();
         return $invoice->getById($response['id']);
@@ -347,7 +347,7 @@ class InvoiceTest extends BaseTest
                 ],
             ],
         ];
-        $invoice = $this->cobreFacil->invoice();
+        $invoice = $this->cobrefacil->invoice;
         $response = $invoice->create($params);
         $this->waitAsyncRequestBeProcessed();
         return $invoice->getById($response['id']);

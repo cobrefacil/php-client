@@ -22,7 +22,7 @@ composer require cobrefacil/sdk-php
 Para realizar a autenticação é necessário informar no construtor da classe `CobreFacil` o `app_id` e `secret` disponíveis no painel de sua conta.
 
 ```php
-use CobreFacil;
+use CobreFacil\CobreFacil;
 
 $cobrefacil = new CobreFacil($appId, $secret);
 ```

@@ -30,10 +30,11 @@ $cobrefacil = new CobreFacil($appId, $secret);
 Essa classe é a responsável por gerar o token que será utilizado nas requisições e facilitar o acesso aos recursos
 disponíveis.
 
-Por padrão a classe utiliza o ambiente de `produção`, caso deseje utilizar o ambiente de `sandbox` basta passar o terceiro parâmetro como `false`.
+Por padrão a classe utiliza o ambiente de `produção`, caso deseje utilizar o ambiente de `sandbox` basta chamar o método `setProduction` e passar o valor `false`.
 
 ```php
 $cobrefacil = new CobreFacil($appId, $secret, false);
+$cobrefacil->setProduction(false);
 ```
 
 ## Recursos Disponíveis

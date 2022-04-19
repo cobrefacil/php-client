@@ -30,7 +30,9 @@ abstract class BaseTest extends TestCase
         $appId = $_ENV['APP_ID'];
         $secret = $_ENV['SECRET'];
         $httpClient = $this->createHttpClient();
-        return new CobreFacil($appId, $secret, false, $httpClient);
+        return (new CobreFacil($appId, $secret))
+            ->setProduction(false)
+            ->setHttpClient($httpClient);
     }
 
     protected function createHttpClient(): ClientInterface

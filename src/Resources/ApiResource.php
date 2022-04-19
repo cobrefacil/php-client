@@ -6,6 +6,7 @@ use CobreFacil\Exceptions\InvalidCredentialsException;
 use CobreFacil\Exceptions\InvalidParamsException;
 use CobreFacil\Exceptions\ResourceException;
 use CobreFacil\Exceptions\ResourceNotFoundException;
+use CobreFacil\Token;
 use Exception;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ClientException;
@@ -30,7 +31,7 @@ abstract class ApiResource
     /** @var string */
     protected $lastRequestUri;
 
-    public function __construct(ClientInterface $client, string $token = null)
+    public function __construct(ClientInterface $client, Token $token = null)
     {
         $this->client = $client;
         if (!is_null($token)) {
